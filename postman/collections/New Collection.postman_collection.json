@@ -1,0 +1,294 @@
+{
+  "info": {
+    "_postman_id": "5001f5f0-c8dc-4887-bfcc-0b5ad7eb1042",
+    "name": "stock-control-api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Product Resource",
+      "item": [
+        {
+          "name": "List Products",
+          "id": "6492c86b-c165-431f-9996-05d91283f161",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/products",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Find Product by ID",
+          "id": "6b32ebe4-7c9b-4cd0-bb44-688ed197c0f4",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/products/id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "products",
+                "id"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product",
+          "id": "effb494e-857e-431c-8fae-175465ceac8e",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"code\": \"P001\",\r\n  \"name\": \"Product A\",\r\n  \"value\": 100.00\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/products",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "id": "573148d0-9c86-4c45-bcce-139b19a6848e",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"code\": \"P002\",\r\n  \"name\": \"Updated Product A\",\r\n  \"value\": 150.00\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/products/id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "products",
+                "id"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "id": "95671499-6043-4565-8637-977a64333374",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/products/id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "products",
+                "id"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Material to Product",
+          "id": "9fc1e51a-c59d-4598-b0a2-2c472c65fbdc",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"rawMaterialId\": 1,\r\n  \"requiredQuantity\": 10\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/products/id/add-material",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "products",
+                "id",
+                "add-material"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "081eef33-411e-4315-b07c-59c6de513853"
+    },
+    {
+      "name": "Raw Material Resource",
+      "item": [
+        {
+          "name": "List Raw Materials",
+          "id": "049c4279-a972-4a98-9f8d-cbe78852b308",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/raw-materials",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "raw-materials"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Find Raw Material by ID",
+          "id": "b0e498e3-cde9-47cd-baee-ff8c876958c3",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/raw-materials/id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "raw-materials",
+                "id"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Raw Material",
+          "id": "7cf7cf32-2e10-4fdf-af53-f21a7d94f771",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"code\": \"RM001\",\r\n  \"name\": \"Ferro\",\r\n  \"stockQuantity\": 100\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/raw-materials",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "raw-materials"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Raw Material",
+          "id": "12800ba8-fb61-4412-b785-c9dff374e093",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"code\": \"RM002\",\r\n  \"name\": \"Cobre\",\r\n  \"stockQuantity\": 150\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/raw-materials/id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "raw-materials",
+                "id"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Raw Material",
+          "id": "015b0910-b41d-4af3-a207-d2d4fd6af954",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/raw-materials/id",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "raw-materials",
+                "id"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "4404bed2-d2d1-4e74-9704-b7529b15b915"
+    }
+  ]
+}

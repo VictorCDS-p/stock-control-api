@@ -5,9 +5,11 @@ import com.victor.stock.dto.RawMaterialResponseDTO;
 import com.victor.stock.entity.RawMaterial;
 import com.victor.stock.service.RawMaterialService;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,71 +19,67 @@ import java.util.stream.Collectors;
 public class RawMaterialResource {
 
     @Inject
-    RawMaterialService service;
+    RawMaterialService rawMaterialService;
 
     @GET
     public Response list() {
-        List<RawMaterialResponseDTO> dtos = service.listAll()
+        List<RawMaterialResponseDTO> materials = rawMaterialService.listAll()
                 .stream()
                 .map(RawMaterialResponseDTO::new)
                 .collect(Collectors.toList());
-        return Response.ok()
-                .entity(dtos)
-                .build();
+
+        return Response.ok(materials).build();
     }
 
     @GET
     @Path("/{id}")
     public Response findById(@PathParam("id") Long id) {
-        RawMaterial rm = service.findById(id);
-        if (rm == null) {
+        RawMaterial material = rawMaterialService.findById(id);
+
+        if (material == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Raw material with ID " + id + " not found")
                     .build();
         }
-        return Response.ok(new RawMaterialResponseDTO(rm)).build();
+
+        return Response.ok(new RawMaterialResponseDTO(material)).build();
     }
 
     @POST
-    public Response create(RawMaterialRequestDTO dto) {
-        RawMaterial rm = new RawMaterial();
-        rm.code = dto.code;
-        rm.name = dto.name;
-        rm.stockQuantity = dto.stockQuantity;
-        service.create(rm);
+    public Response create(@Valid RawMaterialRequestDTO dto) {
+        RawMaterial material = rawMaterialService.create(dto);
+
         return Response.status(Response.Status.CREATED)
-                .entity(new RawMaterialResponseDTO(rm))
+                .entity(new RawMaterialResponseDTO(material))
                 .build();
     }
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Long id, RawMaterialRequestDTO dto) {
-        RawMaterial existing = service.findById(id);
-        if (existing == null) {
+    public Response update(@PathParam("id") Long id,
+                           @Valid RawMaterialRequestDTO dto) {
+
+        RawMaterial material = rawMaterialService.update(id, dto);
+
+        if (material == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Raw material with ID " + id + " not found")
                     .build();
         }
-        existing.code = dto.code;
-        existing.name = dto.name;
-        existing.stockQuantity = dto.stockQuantity;
-        RawMaterial updated = service.update(id, existing);
 
-        return Response.ok(new RawMaterialResponseDTO(updated))
-                .entity("Raw material updated successfully")
-                .build();
+        return Response.ok(new RawMaterialResponseDTO(material)).build();
     }
 
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") Long id) {
-        boolean deleted = service.delete(id);
+        boolean deleted = rawMaterialService.delete(id);
+
         if (!deleted) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Raw material with ID " + id + " not found")
                     .build();
         }
-        return Response.ok("Raw material with ID " + id + " deleted successfully").build();
-    }
+
+        return Response.ok("Raw material with ID " + id + " deleted successfully").build();    }
 }

@@ -2,8 +2,11 @@ package com.victor.stock.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -18,9 +21,10 @@ public class Product extends PanacheEntity {
     @Column(nullable = false)
     public String name;
 
-    @Min(0)
+    @NotNull
+    @DecimalMin("0.0")
     @Column(nullable = false)
-    public Double value;
+    public BigDecimal price;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     public List<ProductMaterial> materials;
