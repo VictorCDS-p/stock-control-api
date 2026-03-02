@@ -1,6 +1,8 @@
 package com.victor.stock.service;
 
+import com.victor.stock.dto.MaterialSimulationDTO;
 import com.victor.stock.dto.ProductRequestDTO;
+import com.victor.stock.dto.SimulationResponseDTO;
 import com.victor.stock.entity.Product;
 import com.victor.stock.entity.ProductMaterial;
 import com.victor.stock.entity.RawMaterial;
@@ -15,10 +17,6 @@ public class ProductService {
 
     public List<Product> listAll() {
         return Product.listAll();
-    }
-
-    public Product findById(Long id) {
-        return Product.findById(id);
     }
 
     public Product findByIdWithMaterials(Long id) {
@@ -94,5 +92,51 @@ public class ProductService {
         pm.persist();
 
         return pm;
+    }
+
+    public SimulationResponseDTO simulateProduction(Long productId) {
+
+        Product product = findByIdWithMaterials(productId);
+
+        if (product == null) {
+            return null;
+        }
+
+        if (product.materials == null || product.materials.isEmpty()) {
+            return new SimulationResponseDTO(
+                    product.id,
+                    product.name,
+                    0,
+                    List.of()
+            );
+        }
+
+        List<MaterialSimulationDTO> materialSimulations = product.materials
+                .stream()
+                .map(pm -> {
+
+                    int possible = pm.rawMaterial.stockQuantity / pm.requiredQuantity;
+
+                    return new MaterialSimulationDTO(
+                            pm.rawMaterial.id,
+                            pm.rawMaterial.name,
+                            pm.rawMaterial.stockQuantity,
+                            pm.requiredQuantity,
+                            possible
+                    );
+                })
+                .toList();
+
+        int finalMax = materialSimulations.stream()
+                .mapToInt(m -> m.possibleProduction)
+                .min()
+                .orElse(0);
+
+        return new SimulationResponseDTO(
+                product.id,
+                product.name,
+                finalMax,
+                materialSimulations
+        );
     }
 }
