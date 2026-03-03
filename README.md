@@ -17,7 +17,9 @@ Built with **Quarkus 3**, **Hibernate ORM Panache**, and **PostgreSQL**. Designe
 - [API Endpoints](#api-endpoints)
 - [Testing](#testing)
 - [Postman Collection](#postman-collection)
+- [Repository](#repository)
 - [Contributing](#contributing)
+
 ---
 
 ## Features
@@ -27,6 +29,7 @@ Built with **Quarkus 3**, **Hibernate ORM Panache**, and **PostgreSQL**. Designe
 - Simulate production runs.
 - API documentation through **OpenAPI / Swagger UI**.
 - Uses **environment variables** for secure database configuration.
+- **Automatic data seeding:** The database is automatically populated with realistic products and raw materials at startup, so you can test immediately without creating entries manually.
 
 ---
 
@@ -90,6 +93,8 @@ Access the API:
 * **Backend Base URL:** `http://localhost:8080`
 * **Swagger UI:** `http://localhost:8080/q/swagger-ui`
 * **OpenAPI JSON:** `http://localhost:8080/q/openapi`
+
+> 🔥 **Note:** The database is automatically seeded with realistic industrial products and raw materials at startup.
 
 ---
 
@@ -183,11 +188,12 @@ A Postman collection is included for testing all API endpoints without manually 
 * Import into Postman to explore and test the API interactively.
 
 ---
+
 ## Repository
 
 The frontend source code is available at:
 
-[https://github.com/VictorCDS-p/stock-control-api](https://github.com/VictorCDS-p/stock-frontend)
+[https://github.com/VictorCDS-p/stock-frontend](https://github.com/VictorCDS-p/stock-frontend)
 
 ---
 
@@ -197,6 +203,7 @@ The frontend source code is available at:
 2. Create your feature branch: `git checkout -b feature-name`
 3. Commit your changes: `git commit -m "Add feature"`
 4. Push to the branch: `git push origin feature-name`
-5. Create a pull request.
+5. Create a pull request. 
 
----
+Quer que eu faça isso também?
+```
