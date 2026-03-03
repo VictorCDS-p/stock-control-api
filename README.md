@@ -197,16 +197,3 @@ A Postman collection is included for testing all API endpoints without manually 
 5. Create a pull request.
 
 ---
-
-## License
-
-This project is licensed under the MIT License.
-
-```
-
----
-
-Se você quiser, posso fazer **uma versão ainda mais completa do README do backend**, incluindo **exemplos de requests via Postman**, **tutoria passo a passo do .env**, e **prints do Swagger UI**, deixando ele praticamente pronto para envio em portfólio ou avaliação.  
-
-Quer que eu faça isso?
-```
