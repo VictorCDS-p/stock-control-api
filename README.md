@@ -1,80 +1,203 @@
-# stock-control-api
+````markdown
+# Stock Control API
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+A backend service for managing products, raw materials, and production simulations.  
+Built with **Quarkus 3**, **Hibernate ORM Panache**, and **PostgreSQL**. Designed for inventory and production management scenarios.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+---
 
-## Running the application in dev mode
+## Table of Contents
 
-You can run your application in dev mode that enables live coding using:
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Environment Setup](#environment-setup-env)
+- [Database Setup](#database-setup)
+- [Quarkus Configuration](#quarkus-configuration)
+- [Running the Backend](#running-the-backend)
+- [API Endpoints](#api-endpoints)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
 
-```shell script
+---
+
+## Features
+
+- CRUD operations for **Products** and **Raw Materials**.
+- Add raw materials to a product.
+- Simulate production runs.
+- API documentation through **OpenAPI / Swagger UI**.
+- Uses **environment variables** for secure database configuration.
+
+---
+
+## Tech Stack
+
+- **Language:** Java 25
+- **Framework:** Quarkus 3.32.1
+- **ORM:** Hibernate ORM with Panache
+- **Database:** PostgreSQL
+- **Testing:** JUnit 5, Mockito, Rest-Assured
+- **API Documentation:** OpenAPI 3.1, Swagger UI
+
+---
+
+## Environment Setup (.env)
+
+Create a `.env` file in the root directory:
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_postgres_password_here
+POSTGRES_URL=jdbc:postgresql://localhost:5432/stockdb
+````
+
+> ⚠️ Replace `your_postgres_password_here` with your PostgreSQL user password.
+
+---
+
+## Database Setup
+
+1. **Install PostgreSQL** if not installed.
+2. **Create the database:**
+
+```sql
+CREATE DATABASE stockdb;
+```
+
+3. **Ensure the user exists and has privileges:**
+
+```sql
+CREATE USER postgres WITH PASSWORD 'your_postgres_password_here';
+GRANT ALL PRIVILEGES ON DATABASE stockdb TO postgres;
+```
+
+> Replace `'your_postgres_password_here'` with your own password.
+
+---
+
+## Quarkus Configuration
+
+Update `src/main/resources/application.properties`:
+
+```properties
+# PostgreSQL connection
+quarkus.datasource.db-kind=postgresql
+quarkus.datasource.username=${env:POSTGRES_USER}
+quarkus.datasource.password=${env:POSTGRES_PASSWORD}
+quarkus.datasource.jdbc.url=${env:POSTGRES_URL}
+
+# Hibernate settings
+quarkus.hibernate-orm.database.generation=update
+quarkus.hibernate-orm.log.sql=true
+
+# Server port
+quarkus.http.port=8080
+```
+
+> Using `${env:VARIABLE_NAME}` ensures Quarkus reads your environment variables.
+
+---
+
+## Running the Backend
+
+```bash
+# Build and install dependencies
+./mvnw clean install -U
+
+# Start Quarkus in dev mode
 ./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Access the API:
 
-## Packaging and running the application
+* **Backend Base URL:** `http://localhost:8080`
+* **Swagger UI:** `http://localhost:8080/q/swagger-ui`
+* **OpenAPI JSON:** `http://localhost:8080/q/openapi`
 
-The application can be packaged using:
+---
 
-```shell script
-./mvnw package
+## API Endpoints
+
+### Products
+
+| Method | Endpoint                      | Description                   |
+| ------ | ----------------------------- | ----------------------------- |
+| GET    | `/products`                   | List all products             |
+| POST   | `/products`                   | Create a new product          |
+| GET    | `/products/{id}`              | Find a product by ID          |
+| PUT    | `/products/{id}`              | Update a product              |
+| DELETE | `/products/{id}`              | Delete a product              |
+| POST   | `/products/{id}/add-material` | Add raw material to a product |
+
+**Product Request DTO:**
+
+```json
+{
+  "code": "string",
+  "name": "string",
+  "price": 0
+}
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+**Product Material Request DTO:**
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+```json
+{
+  "rawMaterialId": 1,
+  "requiredQuantity": 10
+}
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+### Raw Materials
 
-## Creating a native executable
+| Method | Endpoint              | Description               |
+| ------ | --------------------- | ------------------------- |
+| GET    | `/raw-materials`      | List all raw materials    |
+| POST   | `/raw-materials`      | Create a new raw material |
+| GET    | `/raw-materials/{id}` | Find a raw material by ID |
+| PUT    | `/raw-materials/{id}` | Update a raw material     |
+| DELETE | `/raw-materials/{id}` | Delete a raw material     |
 
-You can create a native executable using:
+**Raw Material Request DTO:**
 
-```shell script
-./mvnw package -Dnative
+```json
+{
+  "code": "string",
+  "name": "string",
+  "stockQuantity": 100
+}
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+### Production
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+| Method | Endpoint                 | Description             |
+| ------ | ------------------------ | ----------------------- |
+| GET    | `/production/simulation` | Simulate all production |
+
+---
+
+## Testing
+
+The project includes **unit tests**, **integration tests**, and uses an in-memory **H2 database** for testing.
+
+### Run Tests
+
+```bash
+# Run unit and integration tests
+./mvnw clean test
+
+# Run only unit tests
+./mvnw test -Dtest=*UnitTest
+
+# Run only integration tests
+./mvnw verify -Pintegration-tests
 ```
 
-You can then execute your native executable with: `./target/stock-control-api-1.0.0-SNAPSHOT-runner`
+> ✅ All tests are automatically executed using JUnit 5 and Mockito for mocking.
+> The H2 database is used by default to avoid affecting your local PostgreSQL instance.
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Document your REST APIs with OpenAPI - comes with Swagger UI
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplify your persistence code for Hibernate ORM via the active record or the repository pattern
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
-- JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
-
-## Provided Code
-
-### Hibernate ORM
-
-Create your first JPA entity
-
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
+---
 
 
-[Related Hibernate with Panache section...](https://quarkus.io/guides/hibernate-orm-panache)
 
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
-# stock-control-api
