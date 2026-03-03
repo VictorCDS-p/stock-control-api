@@ -185,7 +185,7 @@ A Postman collection is included for testing all API endpoints without manually 
 ---
 ## Repository
 
-The backend source code is available at:
+The frontend source code is available at:
 
 [https://github.com/VictorCDS-p/stock-control-api](https://github.com/VictorCDS-p/stock-frontend)
 
