@@ -1,3 +1,5 @@
+Perfeito! Vou atualizar o README do backend para incluir a seção sobre o Postman collection que você deixou. Mantendo o estilo profissional e em inglês:
+
 ````markdown
 # Stock Control API
 
@@ -16,6 +18,7 @@ Built with **Quarkus 3**, **Hibernate ORM Panache**, and **PostgreSQL**. Designe
 - [Running the Backend](#running-the-backend)
 - [API Endpoints](#api-endpoints)
 - [Testing](#testing)
+- [Postman Collection](#postman-collection)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -73,29 +76,6 @@ GRANT ALL PRIVILEGES ON DATABASE stockdb TO postgres;
 ```
 
 > Replace `'your_postgres_password_here'` with your own password.
-
----
-
-## Quarkus Configuration
-
-Update `src/main/resources/application.properties`:
-
-```properties
-# PostgreSQL connection
-quarkus.datasource.db-kind=postgresql
-quarkus.datasource.username=${env:POSTGRES_USER}
-quarkus.datasource.password=${env:POSTGRES_PASSWORD}
-quarkus.datasource.jdbc.url=${env:POSTGRES_URL}
-
-# Hibernate settings
-quarkus.hibernate-orm.database.generation=update
-quarkus.hibernate-orm.log.sql=true
-
-# Server port
-quarkus.http.port=8080
-```
-
-> Using `${env:VARIABLE_NAME}` ensures Quarkus reads your environment variables.
 
 ---
 
@@ -199,5 +179,34 @@ The project includes **unit tests**, **integration tests**, and uses an in-memor
 
 ---
 
+## Postman Collection
 
+A Postman collection is included for testing all API endpoints without manually creating requests:
 
+* File: `stock-control-api/stock-control-api.postman_collection.json`
+* Import into Postman to explore and test the API interactively.
+
+---
+
+## Contributing
+
+1. Fork the repository.
+2. Create your feature branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -m "Add feature"`
+4. Push to the branch: `git push origin feature-name`
+5. Create a pull request.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+```
+
+---
+
+Se você quiser, posso fazer **uma versão ainda mais completa do README do backend**, incluindo **exemplos de requests via Postman**, **tutoria passo a passo do .env**, e **prints do Swagger UI**, deixando ele praticamente pronto para envio em portfólio ou avaliação.  
+
+Quer que eu faça isso?
+```
