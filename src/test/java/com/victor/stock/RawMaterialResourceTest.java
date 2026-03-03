@@ -3,6 +3,8 @@ package com.victor.stock;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
@@ -13,7 +15,7 @@ public class RawMaterialResourceTest {
         return """
             {
                 "code": "%s",
-                "name": "Steel",
+                "name": "Aço Inox",
                 "stockQuantity": 100
             }
         """.formatted(code);
@@ -25,15 +27,58 @@ public class RawMaterialResourceTest {
 
     @Test
     void shouldCreateRawMaterial() {
+        String code = "R-" + UUID.randomUUID();
         given()
                 .contentType("application/json")
-                .body(validRawMaterialJson("RM001"))
+                .body(validRawMaterialJson(code))
                 .when()
                 .post("/raw-materials")
                 .then()
                 .statusCode(201)
-                .body("code", is("RM001"))
+                .body("code", is(code))
                 .body("stockQuantity", is(100));
+    }
+
+    @Test
+    void shouldNotCreateRawMaterialWithDuplicateCode() {
+        String code = "R-" + UUID.randomUUID();
+
+        // cria o primeiro
+        given()
+                .contentType("application/json")
+                .body(validRawMaterialJson(code))
+                .when()
+                .post("/raw-materials")
+                .then()
+                .statusCode(201);
+
+        // tenta criar duplicado
+        given()
+                .contentType("application/json")
+                .body(validRawMaterialJson(code))
+                .when()
+                .post("/raw-materials")
+                .then()
+                .statusCode(409);
+    }
+
+    @Test
+    void shouldReturn400WhenCreatingWithInvalidData() {
+        String invalidJson = """
+            {
+                "code": "",
+                "name": "",
+                "stockQuantity": -5
+            }
+        """;
+
+        given()
+                .contentType("application/json")
+                .body(invalidJson)
+                .when()
+                .post("/raw-materials")
+                .then()
+                .statusCode(400);
     }
 
     // =========================
@@ -42,10 +87,11 @@ public class RawMaterialResourceTest {
 
     @Test
     void shouldListRawMaterials() {
+        String code = "R-" + UUID.randomUUID();
 
         given()
                 .contentType("application/json")
-                .body(validRawMaterialJson("RM002"))
+                .body(validRawMaterialJson(code))
                 .when()
                 .post("/raw-materials")
                 .then()
@@ -61,10 +107,9 @@ public class RawMaterialResourceTest {
 
     @Test
     void shouldReturn404WhenRawMaterialNotFound() {
-
         given()
                 .when()
-                .get("/raw-materials/999")
+                .get("/raw-materials/999999")
                 .then()
                 .statusCode(404);
     }
@@ -75,26 +120,26 @@ public class RawMaterialResourceTest {
 
     @Test
     void shouldUpdateRawMaterial() {
+        String code = "R-" + UUID.randomUUID();
 
-        Long id =
-                given()
-                        .contentType("application/json")
-                        .body(validRawMaterialJson("RM003"))
-                        .when()
-                        .post("/raw-materials")
-                        .then()
-                        .statusCode(201)
-                        .extract()
-                        .jsonPath()
-                        .getLong("id");
+        Long id = given()
+                .contentType("application/json")
+                .body(validRawMaterialJson(code))
+                .when()
+                .post("/raw-materials")
+                .then()
+                .statusCode(201)
+                .extract()
+                .jsonPath()
+                .getLong("id");
 
         String updateJson = """
             {
-                "code": "RM003",
-                "name": "Aluminum",
+                "code": "%s",
+                "name": "Aço Galvanizado",
                 "stockQuantity": 200
             }
-        """;
+        """.formatted(code);
 
         given()
                 .contentType("application/json")
@@ -102,17 +147,20 @@ public class RawMaterialResourceTest {
                 .when()
                 .put("/raw-materials/" + id)
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .body("name", is("Aço Galvanizado"))
+                .body("stockQuantity", is(200));
     }
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingRawMaterial() {
+        String code = "R-" + UUID.randomUUID();
 
         given()
                 .contentType("application/json")
-                .body(validRawMaterialJson("RM999"))
+                .body(validRawMaterialJson(code))
                 .when()
-                .put("/raw-materials/999")
+                .put("/raw-materials/999999")
                 .then()
                 .statusCode(404);
     }
@@ -123,18 +171,18 @@ public class RawMaterialResourceTest {
 
     @Test
     void shouldDeleteRawMaterial() {
+        String code = "R-" + UUID.randomUUID();
 
-        Long id =
-                given()
-                        .contentType("application/json")
-                        .body(validRawMaterialJson("RM004"))
-                        .when()
-                        .post("/raw-materials")
-                        .then()
-                        .statusCode(201)
-                        .extract()
-                        .jsonPath()
-                        .getLong("id");
+        Long id = given()
+                .contentType("application/json")
+                .body(validRawMaterialJson(code))
+                .when()
+                .post("/raw-materials")
+                .then()
+                .statusCode(201)
+                .extract()
+                .jsonPath()
+                .getLong("id");
 
         given()
                 .when()
@@ -145,10 +193,9 @@ public class RawMaterialResourceTest {
 
     @Test
     void shouldReturn404WhenDeletingNonExistingRawMaterial() {
-
         given()
                 .when()
-                .delete("/raw-materials/999")
+                .delete("/raw-materials/999999")
                 .then()
                 .statusCode(404);
     }

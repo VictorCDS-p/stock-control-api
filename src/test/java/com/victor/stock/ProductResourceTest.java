@@ -3,11 +3,17 @@ package com.victor.stock;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
 public class ProductResourceTest {
+
+    private String uniqueCode() {
+        return "P" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+    }
 
     private String validProductJson(String code) {
         return """
@@ -25,31 +31,36 @@ public class ProductResourceTest {
 
     @Test
     void shouldCreateProduct() {
+        String code = uniqueCode();
+
         given()
                 .contentType("application/json")
-                .body(validProductJson("P001"))
+                .body(validProductJson(code))
                 .when()
                 .post("/products")
                 .then()
                 .statusCode(201)
-                .body("code", is("P001"))
+                .body("code", is(code))
                 .body("price", is(2500.0f));
     }
 
     @Test
     void shouldNotCreateProductWithDuplicateCode() {
+        String code = uniqueCode();
 
+        // Primeiro create
         given()
                 .contentType("application/json")
-                .body(validProductJson("P002"))
+                .body(validProductJson(code))
                 .when()
                 .post("/products")
                 .then()
                 .statusCode(201);
 
+        // Segundo create com mesmo code
         given()
                 .contentType("application/json")
-                .body(validProductJson("P002"))
+                .body(validProductJson(code))
                 .when()
                 .post("/products")
                 .then()
@@ -58,7 +69,6 @@ public class ProductResourceTest {
 
     @Test
     void shouldReturn400WhenCreatingWithInvalidData() {
-
         String invalidBody = """
             {
                 "code": "",
@@ -82,10 +92,11 @@ public class ProductResourceTest {
 
     @Test
     void shouldListProducts() {
+        String code = uniqueCode();
 
         given()
                 .contentType("application/json")
-                .body(validProductJson("P003"))
+                .body(validProductJson(code))
                 .when()
                 .post("/products")
                 .then()
@@ -101,10 +112,9 @@ public class ProductResourceTest {
 
     @Test
     void shouldReturn404WhenProductNotFound() {
-
         given()
                 .when()
-                .get("/products/999")
+                .get("/products/999999")
                 .then()
                 .statusCode(404);
     }
@@ -115,26 +125,26 @@ public class ProductResourceTest {
 
     @Test
     void shouldUpdateProduct() {
+        String code = uniqueCode();
 
-        Long id =
-                given()
-                        .contentType("application/json")
-                        .body(validProductJson("P004"))
-                        .when()
-                        .post("/products")
-                        .then()
-                        .statusCode(201)
-                        .extract()
-                        .jsonPath()
-                        .getLong("id");
+        Long id = given()
+                .contentType("application/json")
+                .body(validProductJson(code))
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(201)
+                .extract()
+                .jsonPath()
+                .getLong("id");
 
         String updateJson = """
             {
-                "code": "P004",
+                "code": "%s",
                 "name": "Notebook Gamer",
                 "price": 3000.0
             }
-        """;
+        """.formatted(code);
 
         given()
                 .contentType("application/json")
@@ -142,17 +152,20 @@ public class ProductResourceTest {
                 .when()
                 .put("/products/" + id)
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .body("name", is("Notebook Gamer"))
+                .body("price", is(3000.0f));
     }
 
     @Test
     void shouldReturn404WhenUpdatingNonExistingProduct() {
+        String code = uniqueCode();
 
         given()
                 .contentType("application/json")
-                .body(validProductJson("P999"))
+                .body(validProductJson(code))
                 .when()
-                .put("/products/999")
+                .put("/products/999999")
                 .then()
                 .statusCode(404);
     }
@@ -163,18 +176,18 @@ public class ProductResourceTest {
 
     @Test
     void shouldDeleteProduct() {
+        String code = uniqueCode();
 
-        Long id =
-                given()
-                        .contentType("application/json")
-                        .body(validProductJson("P004"))
-                        .when()
-                        .post("/products")
-                        .then()
-                        .statusCode(201)
-                        .extract()
-                        .jsonPath()
-                        .getLong("id");
+        Long id = given()
+                .contentType("application/json")
+                .body(validProductJson(code))
+                .when()
+                .post("/products")
+                .then()
+                .statusCode(201)
+                .extract()
+                .jsonPath()
+                .getLong("id");
 
         given()
                 .when()
@@ -185,10 +198,9 @@ public class ProductResourceTest {
 
     @Test
     void shouldReturn404WhenDeletingNonExistingProduct() {
-
         given()
                 .when()
-                .delete("/products/999")
+                .delete("/products/999999")
                 .then()
                 .statusCode(404);
     }

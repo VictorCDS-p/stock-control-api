@@ -1,8 +1,8 @@
 package com.victor.stock.service;
 
-import com.victor.stock.dto.MaterialSimulationDTO;
 import com.victor.stock.dto.ProductRequestDTO;
-import com.victor.stock.dto.SimulationResponseDTO;
+import com.victor.stock.dto.ProductionSimulationItemDTO;
+import com.victor.stock.dto.ProductionSimulationResponseDTO;
 import com.victor.stock.entity.Product;
 import com.victor.stock.entity.ProductMaterial;
 import com.victor.stock.entity.RawMaterial;
@@ -10,7 +10,8 @@ import com.victor.stock.exception.BusinessException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 
 @ApplicationScoped
 public class ProductService {
@@ -21,7 +22,10 @@ public class ProductService {
 
     public Product findByIdWithMaterials(Long id) {
         return Product.find(
-                "SELECT p FROM Product p LEFT JOIN FETCH p.materials WHERE p.id = ?1",
+                "SELECT DISTINCT p FROM Product p " +
+                        "LEFT JOIN FETCH p.materials pm " +
+                        "LEFT JOIN FETCH pm.rawMaterial " +
+                        "WHERE p.id = ?1",
                 id
         ).firstResult();
     }
@@ -34,7 +38,7 @@ public class ProductService {
     public Product create(ProductRequestDTO dto) {
 
         if (findByCode(dto.code) != null) {
-            throw new BusinessException (
+            throw new BusinessException(
                     "Product code '" + dto.code + "' already exists"
             );
         }
@@ -50,6 +54,7 @@ public class ProductService {
 
     @Transactional
     public Product update(Long id, ProductRequestDTO dto) {
+
         Product product = findByIdWithMaterials(id);
 
         if (product == null) {
@@ -57,6 +62,7 @@ public class ProductService {
         }
 
         Product conflict = findByCode(dto.code);
+
         if (conflict != null && !conflict.id.equals(id)) {
             throw new BusinessException(
                     "Product code '" + dto.code + "' already exists"
@@ -81,6 +87,7 @@ public class ProductService {
                                        int requiredQuantity) {
 
         Product product = Product.findById(productId);
+
         if (product == null) {
             return null;
         }
@@ -94,49 +101,76 @@ public class ProductService {
         return pm;
     }
 
-    public SimulationResponseDTO simulateProduction(Long productId) {
+    public ProductionSimulationResponseDTO simulateProduction() {
 
-        Product product = findByIdWithMaterials(productId);
+        List<Product> products = Product.list(
+                "SELECT DISTINCT p FROM Product p " +
+                        "LEFT JOIN FETCH p.materials pm " +
+                        "LEFT JOIN FETCH pm.rawMaterial " +
+                        "ORDER BY p.price DESC"
+        );
 
-        if (product == null) {
-            return null;
+        Map<Long, Integer> simulatedStock = new HashMap<>();
+
+        List<RawMaterial> allMaterials = RawMaterial.listAll();
+
+        for (RawMaterial rm : allMaterials) {
+            simulatedStock.put(rm.id, rm.stockQuantity);
         }
 
-        if (product.materials == null || product.materials.isEmpty()) {
-            return new SimulationResponseDTO(
-                    product.id,
-                    product.name,
-                    0,
-                    List.of()
+        List<ProductionSimulationItemDTO> results = new ArrayList<>();
+        BigDecimal totalProductionValue = BigDecimal.ZERO;
+
+        for (Product product : products) {
+
+            if (product.materials == null || product.materials.isEmpty()) {
+                continue;
+            }
+
+            int maxProduction = product.materials.stream()
+                    .mapToInt(pm -> {
+                        Integer available = simulatedStock.get(pm.rawMaterial.id);
+                        if (available == null || pm.requiredQuantity == 0) {
+                            return 0;
+                        }
+                        return available / pm.requiredQuantity;
+                    })
+                    .min()
+                    .orElse(0);
+
+            if (maxProduction <= 0) {
+                continue;
+            }
+
+            for (ProductMaterial pm : product.materials) {
+                Long materialId = pm.rawMaterial.id;
+                int usedQuantity = maxProduction * pm.requiredQuantity;
+
+                simulatedStock.put(
+                        materialId,
+                        simulatedStock.get(materialId) - usedQuantity
+                );
+            }
+
+            BigDecimal itemTotal = product.price
+                    .multiply(BigDecimal.valueOf(maxProduction));
+
+            totalProductionValue = totalProductionValue.add(itemTotal);
+
+            results.add(
+                    new ProductionSimulationItemDTO(
+                            product.id,
+                            product.name,
+                            maxProduction,
+                            product.price,
+                            itemTotal
+                    )
             );
         }
 
-        List<MaterialSimulationDTO> materialSimulations = product.materials
-                .stream()
-                .map(pm -> {
-
-                    int possible = pm.rawMaterial.stockQuantity / pm.requiredQuantity;
-
-                    return new MaterialSimulationDTO(
-                            pm.rawMaterial.id,
-                            pm.rawMaterial.name,
-                            pm.rawMaterial.stockQuantity,
-                            pm.requiredQuantity,
-                            possible
-                    );
-                })
-                .toList();
-
-        int finalMax = materialSimulations.stream()
-                .mapToInt(m -> m.possibleProduction)
-                .min()
-                .orElse(0);
-
-        return new SimulationResponseDTO(
-                product.id,
-                product.name,
-                finalMax,
-                materialSimulations
+        return new ProductionSimulationResponseDTO(
+                results,
+                totalProductionValue
         );
     }
 }
