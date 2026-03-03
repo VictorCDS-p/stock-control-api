@@ -1,5 +1,3 @@
-Perfeito! Vou atualizar o README do backend para incluir a seção sobre o Postman collection que você deixou. Mantendo o estilo profissional e em inglês:
-
 ````markdown
 # Stock Control API
 
