@@ -18,8 +18,6 @@ Built with **Quarkus 3**, **Hibernate ORM Panache**, and **PostgreSQL**. Designe
 - [Testing](#testing)
 - [Postman Collection](#postman-collection)
 - [Contributing](#contributing)
-- [License](#license)
-
 ---
 
 ## Features
