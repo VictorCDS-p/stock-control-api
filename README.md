@@ -204,6 +204,3 @@ The frontend source code is available at:
 3. Commit your changes: `git commit -m "Add feature"`
 4. Push to the branch: `git push origin feature-name`
 5. Create a pull request. 
-
-Quer que eu faça isso também?
-```
